@@ -1,0 +1,147 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Balance {
+  id        String   @id @default(uuid())
+  amount    Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  User      User?
+}
+
+model User {
+  id             String           @id @default(uuid())
+  telegramId     String           @unique
+  username       String
+  fullName       String
+  photoUrl       String?
+  languageCode   String?
+  balanceId      String           @unique
+  balance        Balance          @relation(fields: [balanceId], references: [id])
+  paymentHistory PaymentHistory[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+}
+
+model Region {
+  id         String      @id @default(uuid())
+  name       String
+  code       String      @unique
+  subRegions SubRegion[]
+  packages   Package[]
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+}
+
+model SubRegion {
+  id        String   @id @default(uuid())
+  name      String
+  code      String
+  regionId  String
+  region    Region   @relation(fields: [regionId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Package {
+  id           String   @id @default(uuid())
+  name         String
+  code         String   @unique
+  duration     Int
+  durationUnit String
+  price        Float
+  data         String
+  dataUnit     String
+  pricePerData Float
+  regionId     String
+  region       Region   @relation(fields: [regionId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Esim {
+  id            String   @id @default(uuid())
+  telegramId    String
+  imsi          String
+  iccid         String   @unique
+  ac            String
+  shortUrl      String   @default("")
+  totalDuration Int
+  durationUnit  String
+  status        String
+  packageName   String
+  packageCode   String
+  remainingData BigInt
+  orderNo       String
+  order         Order    @relation(fields: [orderNo], references: [orderNo])
+  expiredAt     DateTime
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+enum OrderStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model Order {
+  id            String      @id @default(uuid())
+  telegramId    String
+  orderNo       String      @unique
+  txId          String      @unique
+  amount        Float
+  status        OrderStatus
+  paymentMethod String?
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  esims         Esim[]
+}
+
+enum PaymentType {
+  TOPUP
+  ORDER
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+model PaymentHistory {
+  id            String        @id @default(uuid())
+  referenceId   String        @unique @default("")
+  telegramId    String
+  userId        String?
+  user          User?         @relation(fields: [userId], references: [id])
+  payerEmail    String?       @default("")
+  amount        Float
+  paymentMethod String?
+  status        PaymentStatus
+  paymentType   PaymentType
+  orderNo       String?       @unique @default("")
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+}
+
+model TonHistory {
+  id            String   @id @default(uuid())
+  hash          String   @unique
+  nanoTon       BigInt
+  senderAddress String
+  createdAt     DateTime @default(now())
+}

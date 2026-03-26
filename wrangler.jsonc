@@ -1,0 +1,10 @@
+{
+   "main": ".open-next/worker.js",
+   "name": "roamwi-app",
+   "compatibility_date": "2025-03-25",
+   "compatibility_flags": ["nodejs_compat", "enable_nodejs_http_modules"],
+   "assets": {
+      "directory": ".open-next/assets",
+      "binding": "ASSETS"
+   }
+}

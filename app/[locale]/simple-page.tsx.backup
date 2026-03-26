@@ -1,0 +1,24 @@
+export default async function SimplePage({
+  params
+}: {
+  params: Promise<{ locale: string }>
+}) {
+  const { locale } = await params
+
+  return (
+    <div style={{padding: '20px'}}>
+      <h1>Simple Test Page</h1>
+      <p>Locale: {locale}</p>
+      <p>This page should work without any internationalization libraries.</p>
+      
+      <div style={{marginTop: '20px'}}>
+        <h2>Test Links:</h2>
+        <ul>
+          <li><a href="/en">/en</a></li>
+          <li><a href="/ru">/ru</a></li>
+          <li><a href="/id">/id</a></li>
+        </ul>
+      </div>
+    </div>
+  )
+}
